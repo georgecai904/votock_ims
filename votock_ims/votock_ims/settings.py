@@ -73,7 +73,7 @@ WSGI_APPLICATION = 'votock_ims.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+    # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 # DATABASES = {
 #     'default': {
@@ -82,14 +82,25 @@ WSGI_APPLICATION = 'votock_ims.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'HOST': '127.0.0.1',
+#         'PORT': '3306',
+#         'NAME': 'votock_ims',
+#         'USER': 'root',
+#         'PASSWORD': 'ubuntu'
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'votock_ims',
-        'USER': 'root',
-        'PASSWORD': 'ubuntu'
+        'USER': 'postgres',
+        'PASSWORD': 'ubuntu',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
