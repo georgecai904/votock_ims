@@ -4,11 +4,13 @@ from .models import Product, Supplier, PurchaseOrder, PurchaseOrderLine, SaleOrd
 # Register your models here.
 admin.site.register(Supplier)
 admin.site.register(Purchaser)
+# admin.site.register(SaleOrderLine)
+# admin.site.register(PurchaseOrderLine)
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'inventory_in_box', 'inventory_in_total', )
+    list_display = ('product_name', 'get_inventory_in_box', 'get_inventory_in_bottle', 'get_inventory_in_total')
 
 
 class PurchaseOrderLineInline(admin.TabularInline):

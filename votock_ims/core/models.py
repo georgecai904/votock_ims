@@ -12,21 +12,33 @@ class Product(models.Model):
     region = models.CharField(max_length=20, null=True, blank=True, verbose_name="葡萄产区")
     pack_size = models.IntegerField(null=True, verbose_name="单箱数量")
 
-    inventory_in_box = models.IntegerField(verbose_name="整箱库存")
-    inventory_in_bottle = models.IntegerField(verbose_name="散装库存")
-
-    inventory_in_total = models.IntegerField(editable=False, default=0,verbose_name="总库存（瓶）")
+    # inventory_in_box = models.IntegerField(editable=False, default=0, verbose_name="整箱库存")
+    # inventory_in_bottle = models.IntegerField(editable=False, default=0, verbose_name="散装库存")
+    #
+    # inventory_in_total = models.IntegerField(editable=False, default=0,verbose_name="总库存（瓶）")
 
     def __str__(self):
         return f'{self.product_name}'
 
-    def save(self, *args, **kwargs):
-        self.inventory_in_total = self.inventory_in_box * self.pack_size + self.inventory_in_bottle
-        super(Product, self).save(*args, **kwargs)
-
     class Meta:
         verbose_name = "产品信息"
         verbose_name_plural = "产品信息"
+
+    def get_inventory_in_box(self):
+        purchases = sum(i.quantity for i in PurchaseOrderLine.objects.filter(product=self, unit='box'))
+        sales = sum(i.quantity for i in SaleOrderLine.objects.filter(product=self, unit='box'))
+        return purchases - sales
+    get_inventory_in_box.short_description = '整箱库存'
+
+    def get_inventory_in_bottle(self):
+        purchases = sum(i.quantity for i in PurchaseOrderLine.objects.filter(product=self, unit='bottle'))
+        sales = sum(i.quantity for i in SaleOrderLine.objects.filter(product=self, unit='bottle'))
+        return purchases - sales
+    get_inventory_in_bottle.short_description = '散装库存'
+
+    def get_inventory_in_total(self):
+        return self.get_inventory_in_box() * self.pack_size + self.get_inventory_in_bottle()
+    get_inventory_in_total.short_description = '总库存（瓶）'
 
 
 class Supplier(models.Model):
@@ -53,14 +65,13 @@ class PurchaseOrder(models.Model):
         verbose_name_plural = "采购清单"
 
 
-
 class PurchaseOrderLine(models.Model):
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, verbose_name="采购单号")
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="采购产品")
     quantity = models.IntegerField(null=False, blank=False, verbose_name="产品数量")
     UNIT_CHOICES = (
-        ('箱', 'box'),
-        ('瓶', 'bottle')
+        ('box', '箱'),
+        ('bottle', '瓶')
     )
     unit = models.CharField(max_length=10, null=False, blank=False, default='box', choices=UNIT_CHOICES,
                             verbose_name="数量单位")
@@ -100,10 +111,10 @@ class SaleOrderLine(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name="销售产品")
     quantity = models.IntegerField(null=False, blank=False, verbose_name="产品数量")
     UNIT_CHOICES = (
-        ('箱', 'box'),
-        ('瓶', 'bottle')
+        ('box', '箱'),
+        ('bottle', '瓶')
     )
-    unit = models.CharField(max_length=10, null=False, blank=False, default='box', choices=UNIT_CHOICES,
+    unit = models.CharField(max_length=10, null=False, blank=False, default='箱', choices=UNIT_CHOICES,
                             verbose_name="数量单位")
 
     class Meta:
