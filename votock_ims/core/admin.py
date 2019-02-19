@@ -1,4 +1,8 @@
+
 from django.contrib import admin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
 from .models import Product, Supplier, PurchaseOrder, PurchaseOrderLine, SaleOrderLine, SaleOrder, Purchaser
 
 # Register your models here.
@@ -8,10 +12,15 @@ admin.site.register(Purchaser)
 # admin.site.register(PurchaseOrderLine)
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
-    list_display = ('product_name', 'get_inventory_in_box', 'get_inventory_in_bottle', 'get_inventory_in_total')
+class ProductResource(resources.ModelResource):
+    class Meta:
+        model = Product
 
+
+@admin.register(Product)
+class ProductAdmin(ImportExportModelAdmin):
+    list_display = ('product_name', 'get_inventory_in_box', 'get_inventory_in_bottle', 'get_inventory_in_total')
+    resources = ProductResource
 
 class PurchaseOrderLineInline(admin.TabularInline):
     model = PurchaseOrderLine
